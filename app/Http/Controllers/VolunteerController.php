@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Volunteer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class VolunteerController extends Controller
@@ -15,23 +17,45 @@ class VolunteerController extends Controller
      */
     public function index()
     {
-        $volunteers = Volunteer::all();
-        return Inertia::render('Volunteer/Index', [
-            'volunteers' => $volunteers->map(function ($volunteer) {
-                return [
-                    'id' => $volunteer->id,
-                    'first_name' => $volunteer->first_name,
-                    'last_name' => $volunteer->last_name,
-                    'address' => $volunteer->address,
-                    'number' => $volunteer->number,
-                    'occupation' => $volunteer->occupation,
-                    'email' => $volunteer->email,
-                    'age' => $volunteer->age,
-                    'interested_in' => $volunteer->interested_in,
-                    'experience' => $volunteer->experience,
-                ];
-            })
-        ]);
+        $user = DB::table('users')->where('id', Auth::id())->first();
+        if ($user->role === 'admin') {
+            $volunteers = Volunteer::all();
+            return Inertia::render('Volunteer/Index', [
+                'volunteers' => $volunteers->map(function ($volunteer) {
+                    return [
+                        'id' => $volunteer->id,
+                        'first_name' => $volunteer->first_name,
+                        'last_name' => $volunteer->last_name,
+                        'address' => $volunteer->address,
+                        'number' => $volunteer->number,
+                        'occupation' => $volunteer->occupation,
+                        'email' => $volunteer->email,
+                        'age' => $volunteer->age,
+                        'interested_in' => $volunteer->interested_in,
+                        'experience' => $volunteer->experience,
+                    ];
+                })
+            ]);
+        } else {
+            $volunteers = Volunteer::query()->get(['*'])->where('user_id', '=', Auth::id());
+            return Inertia::render('Volunteer/Client', [
+                'volunteers' => $volunteers->map(function ($volunteer) {
+                    return [
+                        'id' => $volunteer->id,
+                        'user_id' => $volunteer->user_id,
+                        'first_name' => $volunteer->first_name,
+                        'last_name' => $volunteer->last_name,
+                        'address' => $volunteer->address,
+                        'number' => $volunteer->number,
+                        'occupation' => $volunteer->occupation,
+                        'email' => $volunteer->email,
+                        'age' => $volunteer->age,
+                        'interested_in' => $volunteer->interested_in,
+                        'experience' => $volunteer->experience,
+                    ];
+                })
+            ]);
+        }
     }
     /**
      * Display a listing of the resource.
@@ -81,6 +105,7 @@ class VolunteerController extends Controller
             'experience' => 'required|max:1000',
         ]);
         $volunteer = new Volunteer();
+        $volunteer->user_id = Auth::id();
         $volunteer->first_name = $request->first_name;
         $volunteer->last_name = $request->last_name;
         $volunteer->address = $request->address;

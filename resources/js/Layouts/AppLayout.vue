@@ -60,27 +60,31 @@ const logout = () => {
                                     :href="route('dashboard')"
                                     :active="route().current('dashboard')"
                                 >
-                                    Dashboard
+                                    Home
                                 </NavLink>
                                 <NavLink
-                                    :href="route('adopts.client')"
-                                    :active="route().current('adopts.client')"
+                                    :href="route('adopts.index')"
+                                    :active="
+                                        route().current('adopts.index') ||
+                                        route().current('adopts.create')
+                                    "
                                 >
                                     Adopt
                                 </NavLink>
                                 <NavLink
-                                    :href="route('clientadopt.index')"
-                                    :active="route().current('clientadopt.index')"
+                                    :href="route('schedules.index')"
+                                    :active="route().current('schedules.index')"
                                 >
-                                    Adoption Request
+                                    Schedules
                                 </NavLink>
+
                                 <NavLink
                                     :href="route('volunteers.index')"
                                     :active="
                                         route().current('volunteers.index')
                                     "
                                 >
-                                    Volunteer Request
+                                    Volunteer Now
                                 </NavLink>
                             </div>
                             <div
@@ -399,7 +403,13 @@ const logout = () => {
                             :href="route('dashboard')"
                             :active="route().current('dashboard')"
                         >
-                            Dashboard
+                            {{
+                                `${
+                                    $page.props.user.role.includes("client")
+                                        ? "Home"
+                                        : "Dashboard"
+                                }`
+                            }}
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             :href="route('cats.index')"

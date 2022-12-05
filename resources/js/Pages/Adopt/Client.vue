@@ -2,8 +2,9 @@
 import AppLayout from "@/Layouts/AppLayout.vue";
 import Modal from "@/Components/Modal.vue";
 import InputError from "@/Components/InputError.vue";
+import BreadCrumbs from "@/Components/BreadCrumbs.vue";
 import { ref } from "vue";
-import { useForm } from "@inertiajs/inertia-vue3";
+import { Link, useForm } from "@inertiajs/inertia-vue3";
 
 const showModal = ref(false);
 
@@ -110,7 +111,7 @@ defineProps({
                         </svg>
                     </button>
                 </div>
-                <form @submit.prevent="onSubmit()" class="px-4">
+                <form @submit.prevent="onSubmit" class="px-4">
                     <div class="h-[72vh] overflow-auto">
                         <div
                             class="flex justify-between items-center gap-2 px-4 py-6"
@@ -126,6 +127,10 @@ defineProps({
                                 <p class="">{{ form.catColor }}</p>
                             </div>
                         </div>
+                        <div class="flex justify-center p-4">
+                            <InputError :message="form.errors.catID" />
+                        </div>
+                        
                         <div class="flex justify-between items-center gap-3">
                             <div class="mb-6 w-full">
                                 <label
@@ -309,6 +314,7 @@ defineProps({
         </Modal>
 
         <template #header>
+            <BreadCrumbs :folders="['Adopt']" />
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Adoptable Cats
             </h2>
@@ -316,31 +322,61 @@ defineProps({
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div
+                    class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-4"
+                >
+                    <div class="flex justify-end items-center">
+                        <Link
+                            :href="route('adopts.create')"
+                            type="button"
+                            class="flex gap-1 justify-center items-center py-2 px-3 text-sm font-medium text-center rounded-lg text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300"
+                        >
+                            <h2>My Adoption Request</h2>
+                        </Link>
+                    </div>
+
                     <div
                         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 place-content-center"
                     >
                         <button
                             @click="openModal(cat, $page.props.user.id)"
                             v-for="cat in cats"
-                            class="p-4 border rounded-xl m-2"
+                            class="p-4 border-2 rounded-xl m-2 drop-shadow-md"
                         >
                             <img
                                 class="w-stretch object-fit rounded-xl"
                                 :src="cat.image_path"
                             />
-                            <div class="text-center mt-4">
-                                <p class="text-lg font-bold">
-                                    {{ `Cat ID: ${cat.id}` }}
+                            <div class="text-start mt-4">
+                                <p class="text-lg">
+                                    <span class="font-bold">Cat ID: </span>
+                                    <span>{{ cat.id }}</span>
                                 </p>
-                                <p class="font-bold">
-                                    {{ `Name: ${cat.name}` }}
+                                <p class="">
+                                    <span class="font-bold">Name: </span>
+                                    <span>{{ cat.name }}</span>
                                 </p>
-                                <p class="">{{ `Age: ${cat.age_category}` }}</p>
-                                <p class="">{{ `Tags: ${cat.tags}` }}</p>
-                                <p class="">{{ `Color: ${cat.color}` }}</p>
+                                <p class="">
+                                    <span class="font-bold">Color: </span>
+                                    <span>{{ cat.age_category }}</span>
+                                </p>
+                                <p class="">
+                                    <span class="font-bold"> Tags: </span>
+                                    <span
+                                        class="keep-all px-2 mx-1 rounded-full text-sm bg-slate-400"
+                                        v-for="tag in cat.tags.split(',')"
+                                        >{{ tag }}</span
+                                    >
+                                </p>
+                                <p class="">
+                                    <span class="font-bold">Color: </span>
+                                    <span>{{ cat.color }}</span>
+                                </p>
                             </div>
                         </button>
+                        <div v-if="cats.length == 0">
+                            No cats available today, comeback tommorow.
+                        </div>
                     </div>
                 </div>
             </div>

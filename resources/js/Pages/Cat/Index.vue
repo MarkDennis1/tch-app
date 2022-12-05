@@ -2,6 +2,7 @@
 import AppLayout from "@/Layouts/AppLayout.vue";
 import Modal from "@/Components/Modal.vue";
 import InputError from "@/Components/InputError.vue";
+import BreadCrumbs from "@/Components/BreadCrumbs.vue";
 
 import { ref } from "vue";
 import { useForm } from "@inertiajs/inertia-vue3";
@@ -45,6 +46,7 @@ const closeModal = () => {
 
 const onDestroy = (id) => {
     if (confirm("Are you sure?")) {
+        console.log(id);
         Inertia.delete(route("cats.destroy", id));
     }
 };
@@ -103,6 +105,7 @@ defineProps({
                         >
                         <div class="flex justify-center items-center mb-2">
                             <img
+                                v-if="form.title == 'Edit Cat'"
                                 id="modalImg"
                                 class="rounded-full w-60 h60"
                                 :src="form.image_path"
@@ -110,6 +113,7 @@ defineProps({
                         </div>
 
                         <input
+                            v-if="form.title == 'Add New Cat'"
                             @input="form.image_path = $event.target.files[0]"
                             class="block w-full mb-5 text-xs text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
                             id="image_path"
@@ -208,6 +212,7 @@ defineProps({
         </Modal>
 
         <template #header>
+            <BreadCrumbs :folders="['Cat']" />
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Cats
             </h2>
@@ -225,7 +230,7 @@ defineProps({
                             <label for="table-search" class="sr-only"
                                 >Search</label
                             >
-                            <div class="relative mt-1">
+                            <!-- <div class="relative mt-1">
                                 <div
                                     class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none"
                                 >
@@ -249,7 +254,7 @@ defineProps({
                                     class="block p-2 pl-10 w-80 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                                     placeholder="Search for items"
                                 />
-                            </div>
+                            </div> -->
 
                             <button
                                 @click="openModal(false)"
@@ -361,7 +366,7 @@ defineProps({
                                 </tr>
                             </tbody>
                         </table>
-                        <nav
+                        <!-- <nav
                             class="flex justify-between items-center p-4"
                             aria-label="Table navigation"
                         >
@@ -455,7 +460,7 @@ defineProps({
                                     </a>
                                 </li>
                             </ul>
-                        </nav>
+                        </nav> -->
                     </div>
                 </div>
             </div>

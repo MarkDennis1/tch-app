@@ -6,6 +6,7 @@ import InputError from "@/Components/InputError.vue";
 import { ref } from "vue";
 import { useForm } from "@inertiajs/inertia-vue3";
 import { Inertia } from "@inertiajs/inertia";
+import BreadCrumbs from "../../Components/BreadCrumbs.vue";
 
 const form = useForm({
     id: "",
@@ -304,6 +305,7 @@ defineProps({
         </Modal>
 
         <template #header>
+        <BreadCrumbs :folders="['Schedules']" />
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Volunteers
             </h2>
@@ -321,7 +323,7 @@ defineProps({
                             <label for="table-search" class="sr-only"
                                 >Search</label
                             >
-                            <div class="relative mt-1">
+                            <!-- <div class="relative mt-1">
                                 <div
                                     class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none"
                                 >
@@ -345,29 +347,8 @@ defineProps({
                                     class="block p-2 pl-10 w-80 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                                     placeholder="Search for items"
                                 />
-                            </div>
-
-                            <button
-                                @click="openModal(false)"
-                                type="button"
-                                class="flex gap-1 justify-center items-center py-2 px-3 text-sm font-medium text-center rounded-lg text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300"
-                            >
-                                <h2>Add Volunteer</h2>
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke-width="1.5"
-                                    stroke="currentColor"
-                                    class="w-6 h-6"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
-                                    />
-                                </svg>
-                            </button>
+                            </div> -->
+                            
                         </div>
                         <table
                             class="w-full text-sm text-left text-gray-500 -gray-400"
@@ -461,7 +442,13 @@ defineProps({
                                 </tr>
                             </tbody>
                         </table>
-                        <nav
+                        <div
+                            class="text-center text-xl w-full p-4"
+                            v-if="volunteers == 0"
+                        >
+                            You have no pending volunteers..
+                        </div>
+                        <!-- <nav
                             class="flex justify-between items-center p-4"
                             aria-label="Table navigation"
                         >
@@ -555,7 +542,7 @@ defineProps({
                                     </a>
                                 </li>
                             </ul>
-                        </nav>
+                        </nav> -->
                     </div>
                 </div>
             </div>

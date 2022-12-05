@@ -1,6 +1,7 @@
 <script setup>
 import AppLayout from "@/Layouts/AppLayout.vue";
 import Modal from "@/Components/Modal.vue";
+import BreadCrumbs from "@/Components/BreadCrumbs.vue";
 import InputError from "@/Components/InputError.vue";
 
 import { ref } from "vue";
@@ -16,30 +17,24 @@ const form = useForm({
     email: "",
     animal_id: "",
     animal_name: "",
+    animal_image: "",
     address: "",
     appointment: "",
 });
 
 const showModal = ref(false);
-const refIsEdit = ref(false);
 
-const openModal = (isEdit, schedule = null) => {
+const openModal = (adopt) => {
     showModal.value = true;
-    refIsEdit.value = isEdit;
-    if (isEdit) {
-        form.id = schedule.id;
-        form.title = "Edit schedule";
-        form.first_name = schedule.first_name;
-        form.last_name = schedule.last_name;
-        form.phone_number = schedule.phone_number;
-        form.email = schedule.email;
-        form.animal_id = schedule.animal_id;
-        form.animal_name = schedule.animal_name;
-        form.address = schedule.address;
-        form.appointment = schedule.appointment;
-    } else {
-        form.title = "Add New schedule";
-    }
+    form.id = adopt.id;
+    form.title = "Edit schedule";
+    form.first_name = adopt.first_name;
+    form.last_name = adopt.last_name;
+    form.phone_number = adopt.phone_number;
+    form.email = adopt.email;
+    form.animal_id = adopt.cat_id;
+    form.animal_name = adopt.cat_name;
+    form.animal_image = adopt.cat_image;
 };
 
 const closeModal = () => {
@@ -49,24 +44,24 @@ const closeModal = () => {
 
 const onDestroy = (id) => {
     if (confirm("Are you sure?")) {
-        Inertia.delete(route("clientadopt.destroy", id));
+        Inertia.delete(route("adopts.destroy", id));
     }
 };
 
 const onSubmit = () => {
-    if (refIsEdit.value) {
-        form.put(route("schedules.update", form.id), {
-            onSuccess: () => {
-                closeModal();
-            },
-        });
-    } else {
-        form.post(route("schedules.store"), {
-            onSuccess: () => {
-                closeModal();
-            },
-        });
-    }
+    // if (refIsEdit.value) {
+    //     form.put(route("schedules.update", form.id), {
+    //         onSuccess: () => {
+    //             closeModal();
+    //         },
+    //     });
+    // } else {
+    form.post(route("schedules.store"), {
+        onSuccess: () => {
+            closeModal();
+        },
+    });
+    // }
 };
 
 defineProps({
@@ -75,11 +70,11 @@ defineProps({
 </script>
 
 <template>
-    <AppLayout title="schedule">
+    <AppLayout title="Adopt Requests">
         <Modal :show="showModal" maxWidth="lg">
             <form @submit.prevent="onSubmit" class="p-4">
                 <div class="flex items-center justify-between">
-                    <h1 class="font-bold text-xl">{{ form.title }}</h1>
+                    <h1 class="font-bold text-xl">Create Schedule</h1>
 
                     <button @click="closeModal" type="button" class="">
                         <svg
@@ -98,140 +93,154 @@ defineProps({
                         </svg>
                     </button>
                 </div>
-                <hr class="my-8 h-px bg-gray-200 border-0 dark:bg-gray-700" />
-                <div class="m-6">
-                    <label
-                        for="first_name"
-                        class="block mb-2 text-sm font-medium text-gray-900"
-                        >First Name</label
-                    >
-                    <input
-                        type="text"
-                        id="first_name"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        v-model="form.first_name"
-                    />
-                    <InputError :message="form.errors.first_name" />
-                </div>
-                <div class="m-6">
-                    <label
-                        for="last_name"
-                        class="block mb-2 text-sm font-medium text-gray-900"
-                        >Last Name</label
-                    >
-                    <input
-                        type="text"
-                        id="last_name"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        v-model="form.last_name"
-                    />
-                    <InputError :message="form.errors.last_name" />
-                </div>
-                <div class="m-6">
-                    <label
-                        for="phone_number"
-                        class="block mb-2 text-sm font-medium text-gray-900"
-                        >Phone Number</label
-                    >
-                    <input
-                        type="text"
-                        id="phone_number"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        v-model="form.phone_number"
-                    />
-                    <InputError :message="form.errors.phone_number" />
-                </div>
-                <div class="m-6">
-                    <label
-                        for="email"
-                        class="block mb-2 text-sm font-medium text-gray-900"
-                        >Email</label
-                    >
-                    <input
-                        type="text"
-                        id="email"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        v-model="form.email"
-                    />
-                    <InputError :message="form.errors.email" />
-                </div>
-                <div class="m-6">
-                    <label
-                        for="animal_id"
-                        class="block mb-2 text-sm font-medium text-gray-900"
-                        >Animal ID</label
-                    >
-                    <input
-                        type="text"
-                        id="animal_id"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        v-model="form.animal_id"
-                    />
-                    <InputError :message="form.errors.animal_name" />
-                </div>
-                <div class="m-6">
-                    <label
-                        for="animal_name"
-                        class="block mb-2 text-sm font-medium text-gray-900"
-                        >Animal Name</label
-                    >
-                    <input
-                        type="text"
-                        id="animal_name"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        v-model="form.animal_name"
-                    />
-                    <InputError :message="form.errors.animal_name" />
-                </div>
-
-                <div class="m-6">
-                    <label
-                        for="tags"
-                        class="block mb-2 text-sm font-medium text-gray-900"
-                        >Address</label
-                    >
-                    <input
-                        type="text"
-                        id="address"
-                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        v-model="form.address"
-                    />
-                    <InputError :message="form.errors.address" />
-                </div>
-
-                <div class="m-6">
-                    <div class="relative">
-                        <div
-                            class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none"
-                        >
-                            <svg
-                                aria-hidden="true"
-                                class="w-5 h-5 text-gray-500 dark:text-gray-400"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    fill-rule="evenodd"
-                                    d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                                    clip-rule="evenodd"
-                                ></path>
-                            </svg>
-                        </div>
-                        <input
-                            datepicker
-                            datepicker-orientation="bottom right"
-                            type="date"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            placeholder="Select date"
-                            v-model="form.appointment"
+                <hr class="h-px bg-gray-200 border-0 dark:bg-gray-700" />
+                <div class="h-[72vh] overflow-auto">
+                    <div class="flex justify-center p-4">
+                        <img
+                            class="w-6/12 rounded-full"
+                            :src="form.animal_image"
+                            :alt="form.animal_name"
                         />
                     </div>
+                    <div class="m-6">
+                        <label
+                            for="animal_id"
+                            class="block mb-2 text-sm font-medium text-gray-900"
+                            >Animal ID</label
+                        >
+                        <input
+                            disabled
+                            type="text"
+                            id="animal_id"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            v-model="form.animal_id"
+                        />
+                        <InputError :message="form.errors.animal_name" />
+                    </div>
+                    <div class="m-6">
+                        <label
+                            for="animal_name"
+                            class="block mb-2 text-sm font-medium text-gray-900"
+                            >Animal Name</label
+                        >
+                        <input
+                            disabled
+                            type="text"
+                            id="animal_name"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            v-model="form.animal_name"
+                        />
+                        <InputError :message="form.errors.animal_name" />
+                    </div>
+                    <div class="m-6">
+                        <label
+                            for="first_name"
+                            class="block mb-2 text-sm font-medium text-gray-900"
+                            >First Name</label
+                        >
+                        <input
+                            disabled
+                            type="text"
+                            id="first_name"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            v-model="form.first_name"
+                        />
+                        <InputError :message="form.errors.first_name" />
+                    </div>
+                    <div class="m-6">
+                        <label
+                            for="last_name"
+                            class="block mb-2 text-sm font-medium text-gray-900"
+                            >Last Name</label
+                        >
+                        <input
+                            disabled
+                            type="text"
+                            id="last_name"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            v-model="form.last_name"
+                        />
+                        <InputError :message="form.errors.last_name" />
+                    </div>
+                    <div class="m-6">
+                        <label
+                            for="phone_number"
+                            class="block mb-2 text-sm font-medium text-gray-900"
+                            >Phone Number</label
+                        >
+                        <input
+                            disabled
+                            type="text"
+                            id="phone_number"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            v-model="form.phone_number"
+                        />
+                        <InputError :message="form.errors.phone_number" />
+                    </div>
+                    <div class="m-6">
+                        <label
+                            for="email"
+                            class="block mb-2 text-sm font-medium text-gray-900"
+                            >Email</label
+                        >
+                        <input
+                            disabled
+                            type="text"
+                            id="email"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            v-model="form.email"
+                        />
+                        <InputError :message="form.errors.email" />
+                    </div>
+                    <div class="m-6">
+                        <label
+                            for="tags"
+                            class="block mb-2 text-sm font-medium text-gray-900"
+                            >Address</label
+                        >
+                        <input
+                            type="text"
+                            id="address"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            v-model="form.address"
+                        />
+                        <InputError :message="form.errors.address" />
+                    </div>
 
-                    <InputError :message="form.errors.appointment" />
+                    <div class="m-6">
+                        <div class="relative">
+                            <div
+                                class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none"
+                            >
+                                <svg
+                                    aria-hidden="true"
+                                    class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                                    fill="currentColor"
+                                    viewBox="0 0 20 20"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        fill-rule="evenodd"
+                                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                                        clip-rule="evenodd"
+                                    ></path>
+                                </svg>
+                            </div>
+                            <input
+                                datepicker
+                                datepicker-orientation="bottom right"
+                                type="date"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Select date"
+                                v-model="form.appointment"
+                            />
+                        </div>
+
+                        <InputError :message="form.errors.appointment" />
+                    </div>
                 </div>
 
-                <hr class="my-8 h-px bg-gray-200 border-0 dark:bg-gray-700" />
+                <hr class="h-px bg-gray-200 border-0 dark:bg-gray-700" />
                 <button
                     type="submit"
                     class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
@@ -242,8 +251,12 @@ defineProps({
         </Modal>
 
         <template #header>
+            <BreadCrumbs
+                :folders="['Adopt', 'My Adoption Requests']"
+                :routes="[route('adopts.index')]"
+            />
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                schedules
+                My Adoption Requests
             </h2>
         </template>
 
@@ -259,7 +272,7 @@ defineProps({
                             <label for="table-search" class="sr-only"
                                 >Search</label
                             >
-                            <div class="relative mt-1">
+                            <!-- <div class="relative mt-1">
                                 <div
                                     class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none"
                                 >
@@ -283,7 +296,7 @@ defineProps({
                                     class="block p-2 pl-10 w-80 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                                     placeholder="Search for items"
                                 />
-                            </div>
+                            </div> -->
                         </div>
                         <table
                             class="w-full text-sm text-left text-gray-500 -gray-400"
@@ -302,6 +315,9 @@ defineProps({
                                     </th>
                                     <th scope="col" class="py-3 px-6">
                                         Status
+                                    </th>
+                                    <th scope="col" class="py-3 px-6">
+                                        Schedule
                                     </th>
                                     <th scope="col" class="py-3 px-6">
                                         Action
@@ -331,7 +347,35 @@ defineProps({
                                         {{ adopt.cat_id }}
                                     </td>
                                     <td class="py-4 px-6">
-                                        {{ adopt.is_accepted ? 'Accepted' : 'Pending' }}
+                                        {{
+                                            adopt.is_accepted
+                                                ? "Accepted"
+                                                : "Pending"
+                                        }}
+                                    </td>
+                                    <td class="py-4 px-6">
+                                        <button
+                                            v-if="
+                                                adopt.is_accepted &&
+                                                !adopt.appointment
+                                            "
+                                            @click="openModal(adopt)"
+                                            type="button"
+                                            class="flex gap-1 justify-center items-center py-0.3 px-3 text-sm font-medium text-center rounded-lg text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300"
+                                        >
+                                            <h2>Add Schedule</h2>
+                                        </button>
+                                        <button
+                                            disabled
+                                            v-if="!adopt.is_accepted"
+                                            type="button"
+                                            class="flex gap-1 justify-center items-center py-0.3 px-3 text-sm font-medium text-center rounded-lg text-white bg-green-400 focus:ring-4 focus:ring-green-300"
+                                        >
+                                            <h2>Processing</h2>
+                                        </button>
+                                        <div>
+                                            {{ adopt.appointment }}
+                                        </div>
                                     </td>
                                     <td class="flex gap-1 py-4 px-6">
                                         <!-- <button
@@ -382,7 +426,7 @@ defineProps({
                             class="text-center text-xl w-full p-4"
                             v-if="adopts == 0"
                         >
-                            You have no pending schedule..
+                            You have no pending adoption request..
                         </div>
                         <!-- <nav
                             class="flex justify-between items-center p-4"

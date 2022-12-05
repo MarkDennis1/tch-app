@@ -3,11 +3,15 @@
 use App\Http\Controllers\AdoptController;
 use App\Http\Controllers\CatController;
 use App\Http\Controllers\ScheduleController;
-use App\Http\Controllers\ClientAdoptController;
 use App\Http\Controllers\VolunteerController;
+use App\Http\Controllers\ClientAdoptController;
+use App\Http\Controllers\ClientVolunteerController;
+use App\Models\Adopt;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Models\Cat;
+use App\Models\Schedule;
+use App\Models\Volunteer;
 use Inertia\Inertia;
 
 /*
@@ -26,7 +30,7 @@ use Inertia\Inertia;
 // });
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
+    return Inertia::render('Auth/Login', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
         'laravelVersion' => Application::VERSION,
@@ -41,22 +45,16 @@ Route::middleware([
 ])->group(function () {
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard', [
-            'cats' => Cat::all()
+            'catCount' => Cat::all()->count(),
+            'adoptionCount' => Adopt::all()->count(),
+            'scheduleCount' => Schedule::all()->count(),
+            'volunteerCount'=> Volunteer::all()->count()
         ]);
     })->name('dashboard');
 
+    Route::resource('adopts', AdoptController::class);
     Route::resource('cats', CatController::class);
-
-
-    Route::get('adopts', [AdoptController::class, 'index'])->name('adopts.index');
-    Route::get('adoptsNow', [AdoptController::class, 'client'])->name('adopts.client');
-    Route::post('adoptsStore', [AdoptController::class, 'store'])->name('adopts.store');
-    Route::put('adoptsUpdate', [AdoptController::class, 'update'])->name('adopts.update');
-    Route::delete('adoptsUpdate', [AdoptController::class, 'destroy'])->name('adopts.destroy');
-    // Route::delete('adoptsDestroy', [AdoptController::class, 'destroy'])->name('adopts.destroy');
-
     Route::resource('schedules', ScheduleController::class);
-    Route::resource('clientadopt', ClientAdoptController::class);
     Route::resource('volunteers', VolunteerController::class);
 });
 

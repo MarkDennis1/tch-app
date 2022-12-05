@@ -6,8 +6,10 @@ import InputError from "@/Components/InputError.vue";
 import { ref } from "vue";
 import { useForm } from "@inertiajs/inertia-vue3";
 import { Inertia } from "@inertiajs/inertia";
+import BreadCrumbs from "../../Components/BreadCrumbs.vue";
 
 const form = useForm({
+    id: "",
     cat_id: "",
     user_id: "",
     first_name: "",
@@ -53,35 +55,12 @@ const onDestroy = (id) => {
 
 const dis = (id) => {
     if (confirm(id)) {
-        
     }
 };
 
-const onAccept = (adopt) => {
-    // if (refIsEdit.value) {
-
-    form.id = adopt.id;
-    form.cat_id = adopt.cat_id;
-    form.user_id = adopt.user_id;
-    form.first_name = adopt.first_name;
-    form.last_name = adopt.last_name;
-    form.address = adopt.address;
-    form.phone_number = adopt.phone_number;
-    form.age = adopt.age;
-    form.email = adopt.email;
-    form.citizenship = adopt.citizenship;
-    form.occupation = adopt.occupation;
-    form.radioQuestion = adopt.radioQuestion;
-    form.parseRadioQuestion = JSON.parse(adopt.radioQuestion);
-
-    console.log(adopt.id);
-    console.log(form.id);
-
-    form.put(route("adopts.update", form.id), {
-        onSuccess: () => {
-            console.log("success");
-        },
-    });
+const onAccept = (id) => {
+    form.id = id;
+    form.put(route("adopts.update", form.id));
 };
 
 defineProps({
@@ -92,9 +71,9 @@ defineProps({
 <template>
     <AppLayout title="Cat">
         <Modal :show="showModal" maxWidth="lg">
-            <form @submit.prevent="onSubmit" class="p-4">
+            <form @submit.prevent="onAccept" class="p-4">
                 <div class="flex items-center justify-between px-3">
-                    <h1 class="font-bold text-xl">{{ form.title }}</h1>
+                    <h1 class="font-bold text-xl">Adoption Details</h1>
 
                     <button @click="closeModal" type="button" class="">
                         <svg
@@ -302,6 +281,7 @@ defineProps({
         </Modal>
 
         <template #header>
+            <BreadCrumbs :folders="['Adoption Requests']" />
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Adoption Requests
             </h2>
@@ -319,7 +299,7 @@ defineProps({
                             <label for="table-search" class="sr-only"
                                 >Search</label
                             >
-                            <div class="relative mt-1">
+                            <!-- <div class="relative mt-1">
                                 <div
                                     class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none"
                                 >
@@ -343,7 +323,7 @@ defineProps({
                                     class="block p-2 pl-10 w-80 text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                                     placeholder="Search for items"
                                 />
-                            </div>
+                            </div> -->
                         </div>
                         <table
                             class="w-full text-sm text-left text-gray-500 -gray-400"
@@ -414,7 +394,7 @@ defineProps({
                                     <td class="py-4 px-6">
                                         {{ adopt.cat_id }}
                                     </td>
-                                    <td class="py-4 px-6">
+                                    <td :class="`${adopt.is_accepted ? 'text-green-600' : 'text-slate-600'} font-bold py-4 px-6`">
                                         {{
                                             adopt.is_accepted
                                                 ? "Accepted"
@@ -424,7 +404,7 @@ defineProps({
 
                                     <td
                                         v-if="!adopt.is_accepted"
-                                        class="flex gap-1 py-4 px-6"
+                                        class="flex items-center gap-1 py-4 px-6"
                                     >
                                         <button
                                             @click="openModal(adopt)"
@@ -434,7 +414,7 @@ defineProps({
                                             View
                                         </button>
                                         <button
-                                            @click="onAccept(adopt)"
+                                            @click="onAccept(adopt.id)"
                                             type="button"
                                             class="flex items-center gap-1 py-2 px-3 text-xs font-medium text-center text-white bg-green-700 hover:bg-green-800 rounded-lg focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                         >
@@ -444,12 +424,12 @@ defineProps({
                                             @click="onDestroy(adopt.id)"
                                             class="flex items-center gap-1 py-2 px-3 text-xs font-medium text-center text-white bg-red-700 hover:bg-red-800 rounded-lg focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                         >
-                                            Decline
+                                            Delete
                                         </button>
                                     </td>
                                     <td
                                         v-if="adopt.is_accepted"
-                                        class="flex gap-1 py-4 px-6"
+                                        class="flex justify-center items-center gap-1 py-4 px-6"
                                     >
                                         <button
                                             @click="openModal(adopt)"
@@ -458,26 +438,23 @@ defineProps({
                                         >
                                             View
                                         </button>
-
                                         <button
-                                            disabled
-                                            type="button"
-                                            class="flex items-center gap-1 py-2 px-3 text-xs font-medium text-center text-white bg-green-400 hover:bg-green-400 rounded-lg focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                                            @click="onDestroy(adopt.id)"
+                                            class="flex items-center gap-1 py-2 px-3 text-xs font-medium text-center text-white bg-red-700 hover:bg-red-800 rounded-lg focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                         >
-                                            Accept
-                                        </button>
-                                        <button
-                                            disabled
-                                            type="button"
-                                            class="flex items-center gap-1 py-2 px-3 text-xs font-medium text-center text-white bg-red-400 hover:bg-red-400 rounded-lg focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                                        >
-                                            Decline
+                                            Delete
                                         </button>
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
-                        <nav
+                        <div
+                            class="text-center text-xl w-full p-4"
+                            v-if="adopts.length == 0"
+                        >
+                            You have no pending adoption request..
+                        </div>
+                        <!-- <nav
                             class="flex justify-between items-center p-4"
                             aria-label="Table navigation"
                         >
@@ -571,7 +548,7 @@ defineProps({
                                     </a>
                                 </li>
                             </ul>
-                        </nav>
+                        </nav> -->
                     </div>
                 </div>
             </div>

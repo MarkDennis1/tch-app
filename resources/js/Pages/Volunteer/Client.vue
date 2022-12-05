@@ -4,7 +4,7 @@ import Modal from "@/Components/Modal.vue";
 import InputError from "@/Components/InputError.vue";
 
 import { ref } from "vue";
-import { useForm } from "@inertiajs/inertia-vue3";
+import { useForm, Link } from "@inertiajs/inertia-vue3";
 import { Inertia } from "@inertiajs/inertia";
 import BreadCrumbs from "../../Components/BreadCrumbs.vue";
 
@@ -13,33 +13,37 @@ const form = useForm({
     title: "",
     first_name: "",
     last_name: "",
-    phone_number: "",
-    email: "",
-    animal_id: "",
-    animal_name: "",
     address: "",
-    appointment: "",
+    number: "",
+    occupation: "",
+    email: "",
+    age: "",
+    interested_in: [],
+    json_interested_in: "",
+    experience: "",
 });
 
 const showModal = ref(false);
 const refIsEdit = ref(false);
 
-const openModal = (isEdit, schedule = null) => {
+const openModal = (isEdit, volunteer = null) => {
     showModal.value = true;
     refIsEdit.value = isEdit;
+
     if (isEdit) {
-        form.id = schedule.id;
-        form.title = "Schedule Details";
-        form.first_name = schedule.first_name;
-        form.last_name = schedule.last_name;
-        form.phone_number = schedule.phone_number;
-        form.email = schedule.email;
-        form.animal_id = schedule.animal_id;
-        form.animal_name = schedule.animal_name;
-        form.address = schedule.address;
-        form.appointment = schedule.appointment;
+        form.id = volunteer.id;
+        form.title = "Edit Volunteer";
+        form.first_name = volunteer.first_name;
+        form.last_name = volunteer.last_name;
+        form.address = volunteer.address;
+        form.number = volunteer.number;
+        form.occupation = volunteer.occupation;
+        form.email = volunteer.email;
+        form.age = volunteer.age;
+        form.json_interested_in = volunteer.interested_in;
+        form.experience = volunteer.experience;
     } else {
-        form.title = "Add New schedule";
+        form.title = "Submit New Volunteer";
     }
 };
 
@@ -50,19 +54,21 @@ const closeModal = () => {
 
 const onDestroy = (id) => {
     if (confirm("Are you sure?")) {
-        Inertia.delete(route("schedules.destroy", id));
+        Inertia.delete(route("volunteers.destroy", id));
     }
 };
 
 const onSubmit = () => {
+    form.json_interested_in = JSON.stringify(form.interested_in);
     if (refIsEdit.value) {
-        form.put(route("schedules.update", form.id), {
+        form.put(route("volunteers.update", form.id), {
             onSuccess: () => {
                 closeModal();
             },
         });
     } else {
-        form.post(route("schedules.store"), {
+        console.log("create request");
+        form.post(route("volunteers.store"), {
             onSuccess: () => {
                 closeModal();
             },
@@ -71,13 +77,13 @@ const onSubmit = () => {
 };
 
 defineProps({
-    schedules: Array,
+    volunteers: Array,
 });
 </script>
 
 <template>
-    <AppLayout title="schedule">
-        <Modal :show="showModal" maxWidth="lg">
+    <AppLayout title="Volunteer">
+        <Modal :show="showModal" maxWidth="2xl">
             <form @submit.prevent="onSubmit" class="p-4">
                 <div class="flex items-center justify-between">
                     <h1 class="font-bold text-xl">{{ form.title }}</h1>
@@ -100,156 +106,209 @@ defineProps({
                     </button>
                 </div>
                 <hr class="my-8 h-px bg-gray-200 border-0 dark:bg-gray-700" />
-                <div class="overflow-auto h-[72vh]">
-                    <div class="m-6">
+
+                <div class="flex justify-between items-center">
+                    <div class="m-6 w-full">
                         <label
-                            for="first_name"
+                            for="fname"
                             class="block mb-2 text-sm font-medium text-gray-900"
                             >First Name</label
                         >
                         <input
-                            disabled
                             type="text"
-                            id="first_name"
+                            id="fname"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             v-model="form.first_name"
                         />
                         <InputError :message="form.errors.first_name" />
                     </div>
-                    <div class="m-6">
+                    <div class="m-6 w-full">
                         <label
-                            for="last_name"
+                            for="lname"
                             class="block mb-2 text-sm font-medium text-gray-900"
                             >Last Name</label
                         >
                         <input
-                            disabled
                             type="text"
-                            id="last_name"
+                            id="lname"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             v-model="form.last_name"
                         />
                         <InputError :message="form.errors.last_name" />
                     </div>
-                    <div class="m-6">
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <div class="m-6 w-full">
                         <label
-                            for="phone_number"
+                            for="number"
                             class="block mb-2 text-sm font-medium text-gray-900"
                             >Phone Number</label
                         >
                         <input
-                            disabled
-                            type="text"
-                            id="phone_number"
+                            type="number"
+                            id="number"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            v-model="form.phone_number"
+                            v-model="form.number"
                         />
-                        <InputError :message="form.errors.phone_number" />
+                        <InputError :message="form.errors.number" />
                     </div>
-                    <div class="m-6">
+                    <div class="m-6 w-full">
+                        <label
+                            for="occupation"
+                            class="block mb-2 text-sm font-medium text-gray-900"
+                            >Occupation</label
+                        >
+                        <input
+                            type="text"
+                            id="occupation"
+                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                            v-model="form.occupation"
+                        />
+                        <InputError :message="form.errors.occupation" />
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <div class="m-6 w-full">
                         <label
                             for="email"
                             class="block mb-2 text-sm font-medium text-gray-900"
                             >Email</label
                         >
                         <input
-                            disabled
-                            type="text"
+                            type="email"
                             id="email"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                             v-model="form.email"
                         />
                         <InputError :message="form.errors.email" />
                     </div>
-                    <div class="m-6">
+                    <div class="m-6 w-full">
                         <label
-                            for="animal_id"
+                            for="age"
                             class="block mb-2 text-sm font-medium text-gray-900"
-                            >Animal ID</label
+                            >Age</label
                         >
                         <input
-                            disabled
-                            type="text"
-                            id="animal_id"
+                            type="number"
+                            id="age"
                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            v-model="form.animal_id"
+                            v-model="form.age"
                         />
-                        <InputError :message="form.errors.animal_name" />
-                    </div>
-                    <div class="m-6">
-                        <label
-                            for="animal_name"
-                            class="block mb-2 text-sm font-medium text-gray-900"
-                            >Animal Name</label
-                        >
-                        <input
-                            disabled
-                            type="text"
-                            id="animal_name"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            v-model="form.animal_name"
-                        />
-                        <InputError :message="form.errors.animal_name" />
-                    </div>
-
-                    <div class="m-6">
-                        <label
-                            for="tags"
-                            class="block mb-2 text-sm font-medium text-gray-900"
-                            >Address</label
-                        >
-                        <input
-                            disabled
-                            type="text"
-                            id="address"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                            v-model="form.address"
-                        />
-                        <InputError :message="form.errors.address" />
-                    </div>
-
-                    <div class="m-6">
-                        <div class="relative">
-                            <div
-                                class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none"
-                            >
-                                <svg
-                                    aria-hidden="true"
-                                    class="w-5 h-5 text-gray-500 dark:text-gray-400"
-                                    fill="currentColor"
-                                    viewBox="0 0 20 20"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        fill-rule="evenodd"
-                                        d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                                        clip-rule="evenodd"
-                                    ></path>
-                                </svg>
-                            </div>
-                            <input
-                                disabled
-                                datepicker
-                                datepicker-orientation="bottom right"
-                                type="date"
-                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                placeholder="Select date"
-                                v-model="form.appointment"
-                            />
-                        </div>
-
-                        <InputError :message="form.errors.appointment" />
+                        <InputError :message="form.errors.age" />
                     </div>
                 </div>
 
-                <hr class="bg-gray-200 border-0 dark:bg-gray-700" />
+                <div class="m-6">
+                    <label
+                        for="address"
+                        class="block mb-2 text-sm font-medium text-gray-900"
+                        >Address</label
+                    >
+                    <input
+                        type="text"
+                        id="address"
+                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                        v-model="form.address"
+                    />
+                    <InputError :message="form.errors.address" />
+                </div>
+                <div class="m-6">
+                    <label
+                        for="age_category"
+                        class="block mb-2 text-sm font-medium text-gray-900"
+                        >Please choose all volunteer opportunities you are
+                        interested in:</label
+                    >
+                    <div class="flex items-center mb-4">
+                        <input
+                            id="checkbox1"
+                            type="checkbox"
+                            value="Cat caregiver at our main shelter"
+                            class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                            v-model="form.interested_in"
+                        />
+                        <label
+                            for="checkbox1"
+                            class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                            >Cat caregiver at our main shelter</label
+                        >
+                    </div>
+                    <div class="flex items-center mb-4">
+                        <input
+                            id="checkbox2"
+                            type="checkbox"
+                            value="Tour guide during public hours"
+                            class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                            v-model="form.interested_in"
+                        />
+                        <label
+                            for="checkbox2"
+                            class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                            >Tour guide during public hours</label
+                        >
+                    </div>
+                    <div class="flex items-center mb-4">
+                        <input
+                            id="checkbox3"
+                            type="checkbox"
+                            value="Foster home"
+                            class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                            v-model="form.interested_in"
+                        />
+                        <label
+                            for="checkbox3"
+                            class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                            >Foster home</label
+                        >
+                    </div>
+                    <div class="flex items-center mb-4">
+                        <input
+                            id="checkbox4"
+                            type="checkbox"
+                            value="other"
+                            class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                            v-model="form.interested_in"
+                        />
+                        <label
+                            for="checkbox4"
+                            class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                            >Other</label
+                        >
+                    </div>
+                    <div class="mb-6">
+                        <label
+                            for="experience"
+                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                            >Tell us a bit about your background with animals,
+                            your experiencewith volunteer groups, your interests
+                            and why you want to volunteer with us</label
+                        >
+                        <textarea
+                            id="experience"
+                            rows="4"
+                            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder="Write your thoughts here..."
+                            v-model="form.experience"
+                        ></textarea>
+                    </div>
+                </div>
+
+                <hr class="my-8 h-px bg-gray-200 border-0 dark:bg-gray-700" />
+                <button
+                    type="submit"
+                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
+                >
+                    Submit
+                </button>
             </form>
         </Modal>
 
         <template #header>
-            <BreadCrumbs :folders="['My Schedules']" />
+            <BreadCrumbs :folders="['Volunteer']" />
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                My Schedules
+                My Volunteer Requests
             </h2>
         </template>
 
@@ -290,6 +349,27 @@ defineProps({
                                     placeholder="Search for items"
                                 />
                             </div> -->
+                            <button
+                                @click="openModal(false)"
+                                type="button"
+                                class="flex gap-1 justify-center items-center py-2 px-3 text-sm font-medium text-center rounded-lg text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300"
+                            >
+                                <h2>Request Volunteer</h2>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="1.5"
+                                    stroke="currentColor"
+                                    class="w-6 h-6"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M12 9v6m3-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    />
+                                </svg>
+                            </button>
                         </div>
                         <table
                             class="w-full text-sm text-left text-gray-500 -gray-400"
@@ -300,14 +380,15 @@ defineProps({
                                 <tr>
                                     <th scope="col" class="py-3 px-6">Name</th>
                                     <th scope="col" class="py-3 px-6">
+                                        Address
+                                    </th>
+                                    <th scope="col" class="py-3 px-6">
                                         Phone Number
                                     </th>
                                     <th scope="col" class="py-3 px-6">Email</th>
+
                                     <th scope="col" class="py-3 px-6">
-                                        appointment Date
-                                    </th>
-                                    <th scope="col" class="py-3 px-6">
-                                        Pet ID
+                                        Interested in
                                     </th>
                                     <th scope="col" class="py-3 px-6">
                                         Action
@@ -316,32 +397,30 @@ defineProps({
                             </thead>
                             <tbody>
                                 <tr
-                                    v-for="schedule in schedules"
-                                    :key="schedule.id"
+                                    v-for="volunteer in volunteers"
+                                    :key="volunteer.id"
                                     class="bg-white border-b -gray-700 hover:bg-gray-50"
                                 >
                                     <td class="py-4 px-6">
                                         {{
-                                            schedule.first_name +
-                                            " " +
-                                            schedule.last_name
+                                            `${volunteer.first_name} ${volunteer.last_name}`
                                         }}
                                     </td>
                                     <td class="py-4 px-6">
-                                        {{ schedule.phone_number }}
+                                        {{ volunteer.address }}
                                     </td>
                                     <td class="py-4 px-6">
-                                        {{ schedule.email }}
+                                        {{ volunteer.number }}
                                     </td>
                                     <td class="py-4 px-6">
-                                        {{ schedule.appointment }}
+                                        {{ volunteer.email }}
                                     </td>
                                     <td class="py-4 px-6">
-                                        {{ schedule.animal_id }}
+                                        {{ volunteer.interested_in }}
                                     </td>
                                     <td class="flex gap-1 py-4 px-6">
                                         <button
-                                            @click="openModal(true, schedule)"
+                                            @click="openModal(true, volunteer)"
                                             type="button"
                                             class="flex items-center gap-1 py-2 px-3 text-xs font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                         >
@@ -356,17 +435,12 @@ defineProps({
                                                 <path
                                                     stroke-linecap="round"
                                                     stroke-linejoin="round"
-                                                    d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v16.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9zm3.75 11.625a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"
+                                                    d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
                                                 />
                                             </svg>
                                         </button>
                                         <button
-                                            v-if="
-                                                $page.props.user.role.includes(
-                                                    'admin'
-                                                )
-                                            "
-                                            @click="onDestroy(schedule.id)"
+                                            @click="onDestroy(volunteer.id)"
                                             type="button"
                                             class="flex items-center gap-1 py-2 px-3 text-xs font-medium text-center text-white bg-red-700 hover:bg-red-800 rounded-lg focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                                         >
@@ -389,6 +463,12 @@ defineProps({
                                 </tr>
                             </tbody>
                         </table>
+                        <div
+                            class="text-center text-xl w-full p-4"
+                            v-if="volunteers == 0"
+                        >
+                            You have no pending volunteer request.
+                        </div>
                         <!-- <nav
                             class="flex justify-between items-center p-4"
                             aria-label="Table navigation"

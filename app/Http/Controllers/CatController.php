@@ -152,6 +152,7 @@ class CatController extends Controller
      */
     public function destroy(Cat $cat)
     {
+        dd($cat);
         //
         if ($cat->image_path != 'cats/default.png') {
             Storage::delete('public/' . $cat->image_path);

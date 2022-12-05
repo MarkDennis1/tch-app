@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Schedule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ScheduleController extends Controller
@@ -15,11 +17,20 @@ class ScheduleController extends Controller
      */
     public function index()
     {
-        $schedule = Schedule::All();
+        $user = DB::table('users')->where('id', Auth::id())->first();
+        if ($user->role === 'admin') {
+            $schedule = Schedule::All();
 
-        return Inertia::render('Schedule/Index', [
-            'schedules' => $schedule
-        ]);
+            return Inertia::render('Schedule/Index', [
+                'schedules' => $schedule
+            ]);
+        } else {
+            $schedule = Schedule::All();
+
+            return Inertia::render('Schedule/Client', [
+                'schedules' => $schedule
+            ]);
+        }
     }
     /**
      * Display a listing of the resource.
@@ -50,17 +61,13 @@ class ScheduleController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'phone_number' => 'required|min:11|max:11',
-            'email' => 'required',
-            'animal_id' => 'required',
-            'animal_name' => 'required',
             'address' => 'required',
             'appointment' => 'required',
         ]);
 
         $schedule = new Schedule();
+        $schedule->adopt_id = $request->id;
+        $schedule->user_id = Auth::id();
         $schedule->first_name = $request->first_name;
         $schedule->last_name = $request->last_name;
         $schedule->phone_number = $request->phone_number;
@@ -71,7 +78,7 @@ class ScheduleController extends Controller
         $schedule->appointment = $request->appointment;
         $schedule->save();
 
-        return  redirect()->route('schedules.index');
+        return  redirect()->route('adopts.create');
     }
 
     /**
